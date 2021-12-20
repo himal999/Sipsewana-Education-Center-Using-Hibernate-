@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="root" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #6a89cc;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardFormController">
+   <children>
+      <Label layoutX="148.0" layoutY="20.0" lineSpacing="1.0" text="Sipsewana Institute">
+         <font>
+            <Font name="Gayathri Regular" size="36.0" />
+         </font>
+      </Label>
+      <Separator layoutY="81.0" prefHeight="34.0" prefWidth="603.0" />
+      <AnchorPane layoutX="38.0" layoutY="163.0" opacity="0.6" prefHeight="121.0" prefWidth="124.0" style="-fx-background-color: #3c6382;">
+         <children>
+            <Circle fill="WHITE" layoutX="62.0" layoutY="61.0" radius="52.0" stroke="WHITE" strokeType="INSIDE">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Circle>
+            <ImageView fx:id="imgStudent" fitHeight="61.0" fitWidth="63.0" layoutX="32.0" layoutY="30.0" onMouseClicked="#navigate" onMouseEntered="#playMouseEnter" onMouseExited="#playMouseExit" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../assets/students.png" />
+               </image>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </ImageView>
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="443.0" layoutY="163.0" opacity="0.6" prefHeight="121.0" prefWidth="124.0" style="-fx-background-color: #3c6382;">
+         <children>
+            <Circle fill="WHITE" layoutX="62.0" layoutY="61.0" radius="52.0" stroke="WHITE" strokeType="INSIDE">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Circle>
+            <ImageView fx:id="imgDetails" fitHeight="61.0" fitWidth="63.0" layoutX="32.0" layoutY="30.0" onMouseClicked="#navigate" onMouseEntered="#playMouseEnter" onMouseExited="#playMouseExit" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../assets/text.png" />
+               </image>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </ImageView>
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="240.0" layoutY="163.0" opacity="0.6" prefHeight="121.0" prefWidth="124.0" style="-fx-background-color: #3c6382;">
+         <children>
+            <Circle fill="WHITE" layoutX="62.0" layoutY="61.0" radius="52.0" stroke="WHITE" strokeType="INSIDE">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Circle>
+            <ImageView fx:id="imgProgram" fitHeight="61.0" fitWidth="63.0" layoutX="32.0" layoutY="30.0" onMouseClicked="#navigate" onMouseEntered="#playMouseEnter" onMouseExited="#playMouseExit" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../assets/online-course.png" />
+               </image>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </ImageView>
+         </children>
+      </AnchorPane>
+      <Label fx:id="lblHeader" alignment="CENTER" layoutX="-1.0" layoutY="313.0" prefHeight="45.0" prefWidth="603.0" text="Welcome" textAlignment="CENTER" textFill="#f2f2f2">
+         <font>
+            <Font name="Dyuthi Regular" size="27.0" />
+         </font>
+      </Label>
+      <Label fx:id="lblDescription" alignment="CENTER" layoutX="-3.0" layoutY="358.0" prefHeight="16.0" prefWidth="603.0" />
+      <Label layoutX="116.0" layoutY="378.0" text="Copyrigth @ Himal 2022 Developing mr.Boss Company Ltd." textFill="#f2f2f2" />
+   </children>
+</AnchorPane>

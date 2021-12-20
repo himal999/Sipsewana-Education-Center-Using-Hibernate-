@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="root" prefHeight="590.0" prefWidth="872.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ProgrammingFormController">
+   <children>
+      <TableView fx:id="tblProgram" layoutX="28.0" layoutY="283.0" prefHeight="263.0" prefWidth="820.0">
+        <columns>
+          <TableColumn prefWidth="137.0" text="Program ID" />
+          <TableColumn prefWidth="222.0" text="Program" />
+            <TableColumn prefWidth="142.0" text="Duration" />
+            <TableColumn prefWidth="163.0" text="Fee(LKR)" />
+            <TableColumn prefWidth="155.0" text="Action" />
+        </columns>
+      </TableView>
+      <JFXTextField fx:id="txtProgramId" layoutX="28.0" layoutY="110.0" promptText="Program ID" />
+      <JFXTextField fx:id="txtProgramName" layoutX="222.0" layoutY="110.0" prefHeight="26.0" prefWidth="317.0" promptText="Program Name" />
+      <JFXTextField fx:id="txtFee" layoutX="225.0" layoutY="190.0" promptText="Fee(LKR)" />
+      <JFXComboBox fx:id="cmbDuration" layoutX="28.0" layoutY="190.0" prefHeight="26.0" prefWidth="128.0" promptText="Duration" />
+      <JFXButton fx:id="btnDynamic" buttonType="RAISED" layoutX="432.0" layoutY="190.0" onAction="#dynamicOnAction" style="-fx-background-color: #ff3f34;" text="Update" textFill="WHITE">
+         <font>
+            <Font name="FreeSans" size="15.0" />
+         </font>
+      </JFXButton>
+      <AnchorPane layoutX="1.0" layoutY="-2.0" prefHeight="77.0" prefWidth="872.0" style="-fx-background-color: #d2dae2;">
+         <children>
+            <Label fx:id="lblHeader" layoutX="304.0" layoutY="21.0" text="Program Panel" textFill="#f53232">
+               <font>
+                  <Font name="DejaVu Serif Bold" size="28.0" />
+               </font>
+            </Label>
+            <JFXButton fx:id="btnAddNewProgram" buttonType="RAISED" layoutX="673.0" layoutY="25.0" onAction="#addNewProgramOnAction" style="-fx-background-color: #0097e6;" text="+ Add New Program" textFill="WHITE">
+               <font>
+                  <Font name="FreeSans" size="15.0" />
+               </font>
+            </JFXButton>
+            <Separator layoutX="-1.0" layoutY="52.0" prefHeight="27.0" prefWidth="875.0" />
+            <ImageView fitHeight="43.0" fitWidth="47.0" layoutX="14.0" layoutY="18.0" onMouseClicked="#navigateOnHome" onMouseEntered="#mouseEnter" onMouseExited="#mouseExit" opacity="0.99" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../assets/home.png" />
+               </image>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </ImageView>
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>
