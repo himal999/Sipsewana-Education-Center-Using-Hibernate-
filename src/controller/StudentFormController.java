@@ -3,15 +3,13 @@ author :Himal
 version : 0.0.1
 */
 
-import com.jfoenix.controls.JFXButton;
-
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.*;
 
 import db.DbConnection;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -27,18 +25,26 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import model.Program;
+import model.StuRegister;
 import model.Student;
+import model.TM.ProgramTM;
 import model.TM.StudentTM;
+import sun.util.calendar.BaseCalendar;
+import sun.util.calendar.LocalGregorianCalendar;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -56,6 +62,19 @@ public class StudentFormController {
 
     public JFXTextField txtEmail;
 
+
+
+
+    public JFXCheckBox chEnable;
+    public JFXButton btnStuCourseReg;
+
+
+    private Connection con;
+
+    public static  ArrayList<ProgramTM> programTMS;
+    public  static  double amount;
+
+
     public void initialize() throws SQLException, ClassNotFoundException {
         txtNIc.setDisable(true);
         txtName.setDisable(true);
@@ -66,6 +85,11 @@ public class StudentFormController {
         btnDynamic.setDisable(true);
         txtEmail.setDisable(true);
 
+        chEnable.setDisable(true);
+
+        btnStuCourseReg.setDisable(true);
+
+
 
 
         tblStudent.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("nic"));
@@ -74,7 +98,8 @@ public class StudentFormController {
         tblStudent.getColumns().get(3).setCellValueFactory(new PropertyValueFactory<>("dob"));
         tblStudent.getColumns().get(4).setCellValueFactory(new PropertyValueFactory<>("tel"));
         tblStudent.getColumns().get(5).setCellValueFactory(new PropertyValueFactory<>("email"));
-        tblStudent.getColumns().get(6).setCellValueFactory(new PropertyValueFactory<>("action"));
+        tblStudent.getColumns().get(6).setCellValueFactory(new PropertyValueFactory<>("status"));
+        tblStudent.getColumns().get(7).setCellValueFactory(new PropertyValueFactory<>("action"));
 
         loadDataFromDB();
 
@@ -113,6 +138,7 @@ public class StudentFormController {
         lblHeader.setText("Add New Student");
 
         txtNIc.setDisable(false);
+        txtNIc.setEditable(true);
         txtName.setDisable(false);
         txtEmail.setDisable(false);
         txtCity.setDisable(false);
@@ -121,18 +147,23 @@ public class StudentFormController {
         txtTel.setDisable(false);
         btnDynamic.setDisable(false);
         btnDynamic.setText("Add");
+
+        chEnable.setDisable(false);
     }
 
     public void dynamicOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
 
-        Student student =  new Student(txtNIc.getText(),txtName.getText(),txtCity.getText(), Date.valueOf(dpDob.getValue()),txtTel.getText(),txtEmail.getText());
+        Student student =  new Student(txtNIc.getText(),txtName.getText(),txtCity.getText(), Date.valueOf(dpDob.getValue()),txtTel.getText(),txtEmail.getText(),"Pending");
 
         if(btnDynamic.getText().equalsIgnoreCase("Add")){
-            PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("INSERT INTO `Student` VALUES (?,?,?,?,?,?)");
-            execute(pst,"Student Added Success",student.getNic(),student.getName(),student.getAddress(),student.getDob(),student.getTel(),student.getEmail());
+
+            con = DbConnection.getInstance().getConnection();
+            PreparedStatement pst = con.prepareStatement("INSERT INTO `student` VALUES (?,?,?,?,?,?,?)");
+            execute(pst,"Student Added Success",student.getNic(),student.getName(),student.getAddress(),student.getDob(),student.getTel(),student.getEmail(),student.getStatus());
         }
         else if(btnDynamic.getText().equalsIgnoreCase("Update")){
-            PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("UPDATE `Student` SET nic=?,`name`=?,address=?,dob=?,tel=?,email=? WHERE nic=?");
+            con = DbConnection.getInstance().getConnection();
+            PreparedStatement pst = con.prepareStatement("UPDATE `student` SET nic=?,`name`=?,address=?,dob=?,tel=?,email=? WHERE nic=?");
             execute(pst,"Student Update Success",student.getNic(),student.getName(),student.getAddress(),student.getDob(),student.getTel(),student.getEmail(),student.getNic());
         }
         else if(btnDynamic.getText().equalsIgnoreCase("Delete")){
@@ -144,7 +175,8 @@ public class StudentFormController {
             Optional<ButtonType> result = alert.showAndWait();
 
             if(result.orElse(no)==yes){
-              PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("DELETE FROM `Student` WHERE nic=?");
+              con = DbConnection.getInstance().getConnection();
+              PreparedStatement pst = con.prepareStatement("DELETE FROM `student` WHERE nic=?");
               execute(pst,"Student Delete Success",student.getNic());
               return;
             }
@@ -172,19 +204,21 @@ public class StudentFormController {
     }
 
     private void loadDataFromDB() throws SQLException, ClassNotFoundException {
+
+
+
         tblStudent.getItems().clear();
-        PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT * FROM `Student`");
+        con = DbConnection.getInstance().getConnection();
+        PreparedStatement pst = con.prepareStatement("SELECT * FROM `student`");
         ResultSet rst = pst.executeQuery();
         while (rst.next()) {
             Button update = new Button("Update");
             Button delete = new Button("Delete");
             HBox action = new HBox(update,delete);
-            StudentTM student = new StudentTM(rst.getString(1), rst.getString(2), rst.getString(3),rst.getDate(4), rst.getString(5), rst.getString(6),action);
+            StudentTM student = new StudentTM(rst.getString(1), rst.getString(2), rst.getString(3),rst.getDate(4), rst.getString(5), rst.getString(6),rst.getString(7),action);
             tblStudent.getItems().add(student);
 
             update.setOnAction(event -> {
-
-
                 loadTextFieldData(student,"Update Student","Update");
             });
 
@@ -222,26 +256,130 @@ public class StudentFormController {
         txtTel.setText(student.getTel());
         txtEmail.setText(student.getEmail());
 
+        chEnable.setDisable(true);
+
 
     }
 
 
+
+
     private void execute(PreparedStatement pst,String msg,Object... args) throws SQLException, ClassNotFoundException {
+
 
         for(int i=0;i<args.length;i++){
             pst.setObject(i+1,args[i]);
         }
 
-        if(pst.executeUpdate()>0){
-            new Alert(Alert.AlertType.CONFIRMATION,msg).show();
-            loadDataFromDB();
-            clearField();
-            return;
+       if(pst.executeUpdate()>0){
+
+           new Alert(Alert.AlertType.CONFIRMATION,msg).show();
+           clearField();
+           loadDataFromDB();
+           return ;
         }else{
-            new Alert(Alert.AlertType.WARNING,"Try Again").show();
-            return;
+           new Alert(Alert.AlertType.WARNING,"Try Again").show();
+           clearField();
+           return;
         }
+
     }
 
 
+
+
+
+
+
+
+
+
+    public void stuCourseRegOnAction(ActionEvent actionEvent) throws SQLException {
+
+        Student student = new Student(txtNIc.getText(),txtName.getText(),txtCity.getText(),Date.valueOf(dpDob.getValue()),txtTel.getText(),txtEmail.getText(),"Success");
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd ");
+        Calendar cal = Calendar.getInstance();
+        String date  = dateFormat.format(cal.getTime());
+
+        StuRegister register = new StuRegister(student.getNic(),programTMS,date,amount);
+        try {
+            con.setAutoCommit(false);
+            PreparedStatement pst = null;
+            pst = con.prepareStatement("INSERT INTO `student` VALUES (?,?,?,?,?,?,?)");
+            pst.setObject(1,student.getNic());
+            pst.setObject(2,student.getName());
+            pst.setObject(3,student.getAddress());
+            pst.setObject(4,student.getDob());
+            pst.setObject(5,student.getTel());
+            pst.setObject(6,student.getEmail());
+            pst.setObject(7,student.getStatus());
+
+            if(pst.executeUpdate()>0){
+
+                boolean bool=false;
+                for(ProgramTM temp:register.getPrograms()){
+                    pst = con.prepareStatement("INSERT INTO `stu course register` VALUES (?,?)");
+                    pst.setObject(1,register.getNic());
+                    pst.setObject(2,temp.getId());
+                    if(pst.executeUpdate()>0){
+                        bool=true;
+                    }else{
+                        bool=false;
+                        con.rollback();
+                        con.setAutoCommit(true);
+                    }
+
+                }
+                if(bool) {
+                    pst = con.prepareStatement("INSERT INTO `stu course register detail` VALUES (?,?,?)");
+                    pst.setObject(1,register.getNic());
+                    pst.setObject(2,date);
+                    pst.setObject(3,amount);
+
+                    if(pst.executeLargeUpdate()>0){
+                        con.commit();
+                        con.setAutoCommit(true);
+                    }else{
+                        con.rollback();
+                        con.setAutoCommit(true);
+                    }
+                }
+
+
+            }else{
+                con.rollback();
+                con.setAutoCommit(true);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        finally {
+            con.setAutoCommit(true);
+        }
+    }
+
+    public void enableRegisterField(MouseEvent mouseEvent) throws IOException {
+           if(chEnable.isSelected()){
+               btnStuCourseReg.setDisable(true);
+               btnDynamic.setDisable(true);
+
+               FXMLLoader loader = new FXMLLoader();
+               loader.setLocation(this.getClass().getClassLoader().getResource("view/registerForm.fxml"));
+               Parent root = loader.load();
+               Stage stage = new Stage();
+               stage.setScene(new Scene(root));
+               stage.show();
+               RegisterFormController registerFormController = loader.getController();
+               registerFormController.mainRoot = this.root;
+               registerFormController.submit = this.btnStuCourseReg;
+
+                this.root.setDisable(true);
+
+           }else{
+               btnStuCourseReg.setDisable(true);
+               btnDynamic.setDisable(false);
+           }
+    }
 }

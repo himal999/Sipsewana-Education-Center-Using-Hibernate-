@@ -12,18 +12,22 @@ public class Student {
     Date dob;
     String tel;
     String email;
+    String status;
 
     public Student() {
     }
 
-    public Student(String nic, String name, String address, Date dob, String tel, String email) {
+    public Student(String nic, String name, String address, Date dob, String tel, String email, String status) {
         this.nic = nic;
         this.name = name;
         this.address = address;
         this.dob = dob;
         this.tel = tel;
         this.email = email;
+        this.status = status;
+
     }
+
 
     public String getNic() {
         return nic;
@@ -71,5 +75,13 @@ public class Student {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

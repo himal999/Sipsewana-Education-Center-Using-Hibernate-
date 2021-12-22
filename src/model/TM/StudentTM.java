@@ -15,18 +15,20 @@ public class StudentTM {
     Date dob;
     String tel;
     String email;
+    String status;
     HBox action;
 
     public StudentTM() {
     }
 
-    public StudentTM(String nic, String name, String address, Date dob, String tel, String email, HBox action) {
+    public StudentTM(String nic, String name, String address, Date dob, String tel, String email, String status, HBox action) {
         this.nic = nic;
         this.name = name;
         this.address = address;
         this.dob = dob;
         this.tel = tel;
         this.email = email;
+        this.status = status;
         this.action = action;
     }
 
@@ -76,6 +78,14 @@ public class StudentTM {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public HBox getAction() {
