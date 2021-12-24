@@ -9,7 +9,7 @@ import db.DbConnection;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 
-import javafx.fxml.FXML;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -25,26 +25,25 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import model.Program;
+
 import model.StuRegister;
 import model.Student;
 import model.TM.ProgramTM;
 import model.TM.StudentTM;
-import sun.util.calendar.BaseCalendar;
-import sun.util.calendar.LocalGregorianCalendar;
+
 
 import java.io.IOException;
 import java.sql.*;
 
 import java.text.DateFormat;
-import java.text.ParseException;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Objects;
+
 import java.util.Optional;
 
 

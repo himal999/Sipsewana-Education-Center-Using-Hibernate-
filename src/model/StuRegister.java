@@ -24,6 +24,7 @@ public class StuRegister {
         this.amount = amount;
     }
 
+
     public String getNic() {
         return nic;
     }

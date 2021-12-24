@@ -1,14 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="controller.ViewDetailFormController"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane fx:id="root" prefHeight="590.0" prefWidth="872.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ViewDetailFormController">
+    <children>
+        <TableView fx:id="tblDetail" layoutX="28.0" layoutY="283.0" prefHeight="263.0" prefWidth="820.0">
+            <columns>
+                <TableColumn prefWidth="137.0" text="Program ID" />
+                <TableColumn prefWidth="344.0" text="Program Name" />
+                <TableColumn prefWidth="194.0" text="Duration" />
+                <TableColumn prefWidth="144.0" text="Action" />
+            </columns>
+        </TableView>
+        <JFXComboBox fx:id="cmbNic" labelFloat="true" layoutX="235.0" layoutY="117.0" prefHeight="26.0" prefWidth="128.0" promptText="NIC" />
+        <JFXButton buttonType="RAISED" layoutX="735.0" layoutY="130.0" style="-fx-background-color: #ff3f34;" textFill="WHITE">
+            <font>
+                <Font name="FreeSans" size="15.0" />
+            </font>
+        </JFXButton>
+        <AnchorPane layoutX="1.0" layoutY="-2.0" prefHeight="77.0" prefWidth="872.0" style="-fx-background-color: #d2dae2;">
+            <children>
+                <Label fx:id="lblHeader" layoutX="304.0" layoutY="21.0" text="Information Panel" textFill="#f53232">
+                    <font>
+                        <Font name="DejaVu Serif Bold" size="28.0" />
+                    </font>
+                </Label>
+                <Separator layoutX="-1.0" layoutY="52.0" prefHeight="27.0" prefWidth="875.0" />
+                <ImageView fitHeight="43.0" fitWidth="47.0" layoutX="14.0" layoutY="18.0" onMouseClicked="#navigateOnHome" onMouseEntered="#mouseEnter" onMouseExited="#mouseExit" opacity="0.99" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../assets/home.png" />
+                    </image>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </ImageView>
+            </children>
+        </AnchorPane>
+      <JFXComboBox fx:id="cmbName" layoutX="432.0" layoutY="119.0" prefHeight="26.0" prefWidth="212.0" promptText="Name" />
+      <Label layoutX="387.0" layoutY="117.0" text="or">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Label>
+      <Label layoutX="28.0" layoutY="115.0" text="Search Student ">
+         <font>
+            <Font size="25.0" />
+         </font>
+      </Label>
+      <Label layoutX="28.0" layoutY="212.0" text="Do you want to register new program ?" />
+      <Label fx:id="lblClickHere" layoutX="291.0" layoutY="212.0" onMouseClicked="#newProgramRegister" text="Click Here" textFill="#1301d3" underline="true" />
+    </children>
 </AnchorPane>
