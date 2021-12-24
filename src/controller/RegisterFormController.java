@@ -48,7 +48,18 @@ public class RegisterFormController {
     public Button submit;
     public static  ArrayList<ProgramTM> tempPr = new ArrayList<>();
 
-    public void initialize() throws SQLException, ClassNotFoundException {
+    /*second adding data to db */
+
+    public String nic;
+    public  boolean bool;
+
+    public void initialize()  {
+
+    }
+
+    public void initialize(int id) throws SQLException, ClassNotFoundException {
+
+
         btnOk.setDisable(true);
         btnAdd.setDisable(true);
 
@@ -58,7 +69,16 @@ public class RegisterFormController {
 
         txtDuration.setEditable(false);
 
-        loadData();
+
+
+        if(bool){
+
+            loadData();
+        }
+        if(!bool){
+
+            newLoadData();
+        }
 
         cmbCode.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             setData(select=newValue.toString());
@@ -71,6 +91,29 @@ public class RegisterFormController {
         tblAdd.getColumns().get(4).setCellValueFactory(new PropertyValueFactory<>("action"));
 
         calData();
+    }
+
+    public void initialize(String nic) throws SQLException, ClassNotFoundException {
+
+
+        ArrayList<String> cCid = new ArrayList<>();
+        PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT c_id FROM `stu course register` WHERE nic=?");
+        pst.setObject(1,nic);
+        ResultSet rst = pst.executeQuery();
+        while (rst.next()){
+            cCid.add(rst.getString("c_id"));
+        }
+
+        pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT c_id FROM `course`");
+        rst = pst.executeQuery();
+      L1:  while (rst.next()){
+            for(String temp:cCid){
+                if(rst.getString("c_id").equalsIgnoreCase(temp)){
+                    continue  L1;
+                }
+            }
+            cmbCode.getItems().add(rst.getString("c_id"));
+        }
     }
 
     public void addToTable(ActionEvent actionEvent) {
@@ -138,6 +181,15 @@ public class RegisterFormController {
         }
     }
 
+    private void newLoadData() throws SQLException, ClassNotFoundException {
+        PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT * FROM `course`");
+        ResultSet rst  = pst.executeQuery();
+        while (rst.next()){
+
+            programArrayList.add(new Program(rst.getString(1),rst.getString(2),rst.getString(3),rst.getDouble(4)));
+        }
+    }
+
     private void setData(String id){
         btnAdd.setDisable(false);
         for(Program temp : programArrayList){
@@ -157,5 +209,24 @@ public class RegisterFormController {
             amount+=temp.getFee();
         }
         lblFullAmount.setText(String.valueOf(amount));
+    }
+
+    public void newFinishToAdd(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+
+        for (ProgramTM temp : tblAdd.getItems()){
+            PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("INSERT INTO `stu course register` VALUES(?,?)");
+            pst.setObject(1,nic);
+            pst.setObject(2,temp.getId());
+            if(pst.executeUpdate()>0){
+
+            }else{
+                new Alert(Alert.AlertType.WARNING,"Try Again").show();
+                return;
+            }
+        }
+        mainRoot.setDisable(false);
+        Stage stage = (Stage)subRoot.getScene().getWindow();
+        stage.close();
+
     }
 }

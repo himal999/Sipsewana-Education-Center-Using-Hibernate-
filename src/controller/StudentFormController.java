@@ -359,7 +359,7 @@ public class StudentFormController {
         }
     }
 
-    public void enableRegisterField(MouseEvent mouseEvent) throws IOException {
+    public void enableRegisterField(MouseEvent mouseEvent) throws IOException, SQLException, ClassNotFoundException {
            if(chEnable.isSelected()){
                btnStuCourseReg.setDisable(true);
                btnDynamic.setDisable(true);
@@ -370,11 +370,13 @@ public class StudentFormController {
                Stage stage = new Stage();
                stage.setScene(new Scene(root));
                stage.show();
+
                RegisterFormController registerFormController = loader.getController();
+               registerFormController.bool=true;
                registerFormController.mainRoot = this.root;
                registerFormController.submit = this.btnStuCourseReg;
-
-                this.root.setDisable(true);
+               registerFormController.initialize(0);
+               this.root.setDisable(true);
 
            }else{
                btnStuCourseReg.setDisable(true);

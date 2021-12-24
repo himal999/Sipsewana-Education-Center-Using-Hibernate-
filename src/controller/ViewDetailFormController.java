@@ -5,14 +5,25 @@ version : 0.0.1
 
 import com.jfoenix.controls.JFXComboBox;
 import db.DbConnection;
+import javafx.animation.TranslateTransition;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 import model.TM.DetailTM;
 
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,21 +35,24 @@ public class ViewDetailFormController {
     public TableView<DetailTM> tblDetail;
     public JFXComboBox cmbNic;
     public Label lblHeader;
-    public JFXComboBox cmbName;
+
     public Label lblClickHere;
+    public ImageView imgIcon;
+    public Label lblNoOfCourse;
     private  String selected;
 
 
 
     public void initialize() throws SQLException, ClassNotFoundException {
         lblClickHere.setDisable(true);
-
+        lblNoOfCourse.setVisible(false);
 
 
         loadData();
 
         cmbNic.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {
+                lblClickHere.setDisable(false);
                 selected = newValue.toString();
                 loadTable(selected);
 
@@ -58,16 +72,50 @@ public class ViewDetailFormController {
     }
 
 
-    public void newProgramRegister(MouseEvent mouseEvent) {
+    public void newProgramRegister(MouseEvent mouseEvent) throws IOException, SQLException, ClassNotFoundException {
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(this.getClass().getClassLoader().getResource("view/newRegisterForm.fxml"));
+
+        Parent root  = loader.load();
+        Stage subStage = new Stage();
+        subStage.setScene(new Scene(root));
+        subStage.show();
+        RegisterFormController rg  = loader.getController();
+        rg.bool = false;
+        rg.mainRoot = this.root;
+        this.root.setDisable(true);
+        rg.nic = selected;
+        rg.initialize(selected);
+        rg.initialize(0);
     }
 
-    public void navigateOnHome(MouseEvent mouseEvent) {
+    public void navigateOnHome(MouseEvent mouseEvent) throws IOException {
+        Parent root  = FXMLLoader.load(getClass().getResource("../view/dashboardForm.fxml"));
+        Scene scene = new Scene(root);
+        Stage stage  = (Stage)this.root.getScene().getWindow();
+        stage.setScene(scene);
+        stage.show();
+
+        TranslateTransition tt = new TranslateTransition(Duration.millis(350),scene.getRoot());
+        tt.setFromY(scene.getWidth()-50);
+        tt.setToY(0);
+        tt.play();
+
     }
 
     public void mouseEnter(MouseEvent mouseEvent) {
+        DropShadow shadow = new DropShadow();
+        shadow.setColor(Color.BLUE);
+        shadow.setHeight(30);
+        shadow.setWidth(30);
+        shadow.setRadius(50);
+        imgIcon.setEffect(shadow);
+
     }
 
     public void mouseExit(MouseEvent mouseEvent) {
+        imgIcon.setEffect(null);
     }
 
     private void loadData() throws SQLException, ClassNotFoundException {
@@ -94,14 +142,9 @@ public class ViewDetailFormController {
             name.add(rst.getString("name"));
 
         }
-
-        for(String temp:name){
-            cmbName.getItems().add(temp);
-        }
-
     }
 
-    private void loadTable(String id) throws SQLException, ClassNotFoundException {
+    public void loadTable(String id) throws SQLException, ClassNotFoundException {
 
 
         ArrayList<String> cId = new ArrayList<>();
@@ -147,6 +190,8 @@ public class ViewDetailFormController {
             });
 
         }
+        lblNoOfCourse.setVisible(true);
+        lblNoOfCourse.setText(String.valueOf(tblDetail.getItems().size()));
     }
     private void dropCourse(String select) throws SQLException, ClassNotFoundException {
         ButtonType yes = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
