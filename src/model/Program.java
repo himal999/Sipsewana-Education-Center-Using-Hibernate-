@@ -3,10 +3,19 @@ author :Himal
 version : 0.0.1
 */
 
+
+
+
+
 public class Program {
+
+
     String id;
+
     String name;
+
     String duration;
+
     double fee;
 
 

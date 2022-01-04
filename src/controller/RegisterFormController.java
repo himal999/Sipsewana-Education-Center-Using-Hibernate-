@@ -1,16 +1,19 @@
-package controller;/*
+package controller;
+/*
 author :Himal
 version : 0.0.1
 */
 
+import bo.ProgramBO;
+import bo.impl.ProgramBOImpl;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
-import db.DbConnection;
-import javafx.application.Platform;
+import dao.impl.ProgrammingDAOImpl;
+import db.FactoryConfig;
+import entity.Program;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,13 +22,16 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import model.Program;
 import model.TM.ProgramTM;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RegisterFormController {
     public JFXComboBox cmbCode;
@@ -39,7 +45,10 @@ public class RegisterFormController {
     public TableView<ProgramTM> tblAdd;
     public AnchorPane subRoot;
 
-    private ArrayList<Program> programArrayList = new ArrayList<>();
+
+    ProgramBO programmingDAO =  new ProgramBOImpl();
+
+    private ArrayList<entity.Program> programArrayList = new ArrayList<>();
     private String select;
 
     /*Scene data*/
@@ -57,7 +66,7 @@ public class RegisterFormController {
 
     }
 
-    public void initialize(int id) throws SQLException, ClassNotFoundException {
+    public void initialize(int id) throws SQLException, ClassNotFoundException, IOException {
 
 
         btnOk.setDisable(true);
@@ -93,27 +102,32 @@ public class RegisterFormController {
         calData();
     }
 
-    public void initialize(String nic) throws SQLException, ClassNotFoundException {
+    public void initialize(String nic) throws SQLException, ClassNotFoundException, IOException {
 
+        Session session  = FactoryConfig.getInstance().getSession();
+        Transaction transaction = session.beginTransaction();
+        List<String> cCid = new ArrayList<>();
+        String sql = "SELECT programs_id FROM student_program WHERE students_nic= ?";
+        NativeQuery sqlQuery = session.createSQLQuery(sql);
+        sqlQuery.setParameter(1,nic);
+        cCid = sqlQuery.list();
 
-        ArrayList<String> cCid = new ArrayList<>();
-        PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT c_id FROM `stu course register` WHERE nic=?");
-        pst.setObject(1,nic);
-        ResultSet rst = pst.executeQuery();
-        while (rst.next()){
-            cCid.add(rst.getString("c_id"));
-        }
+        List<String> list = new ArrayList<>();
+        String hql = "SELECT id FROM program";
+        Query query = session.createQuery(hql);
+        list = query.list();
 
-        pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT c_id FROM `course`");
-        rst = pst.executeQuery();
-      L1:  while (rst.next()){
-            for(String temp:cCid){
-                if(rst.getString("c_id").equalsIgnoreCase(temp)){
-                    continue  L1;
-                }
+        String tt= null;
+    L1: for(String temp:list){
+
+        for(String id:cCid){
+            tt=id;
+            if(id.equalsIgnoreCase(temp)){
+                continue L1;
             }
-            cmbCode.getItems().add(rst.getString("c_id"));
         }
+        cmbCode.getItems().add(tt);
+       }
     }
 
     public void addToTable(ActionEvent actionEvent) {
@@ -166,27 +180,23 @@ public class RegisterFormController {
           stage.close();
     }
 
-    private void loadData() throws SQLException, ClassNotFoundException {
-        PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT * FROM `course`");
-        ResultSet rst  = pst.executeQuery();
-        while (rst.next()){
+    private void loadData() throws IOException {
 
-            programArrayList.add(new Program(rst.getString(1),rst.getString(2),rst.getString(3),rst.getDouble(4)));
+        List<Program> programs =  programmingDAO.allProgram();
+        for (Program temp:programs){
+            programArrayList.add(new Program(temp.getId(),temp.getName(),temp.getDuration(),temp.getFee()));
         }
 
-        for(Program temp:programArrayList) {
-
+        for(Program temp:programArrayList){
             cmbCode.getItems().add(temp.getId());
-
         }
     }
 
-    private void newLoadData() throws SQLException, ClassNotFoundException {
-        PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT * FROM `course`");
-        ResultSet rst  = pst.executeQuery();
-        while (rst.next()){
-
-            programArrayList.add(new Program(rst.getString(1),rst.getString(2),rst.getString(3),rst.getDouble(4)));
+    private void newLoadData() throws IOException {
+        ProgrammingDAOImpl programmingDAO = new ProgrammingDAOImpl();
+        List<entity.Program> programs = programmingDAO.allProgram();
+        for(entity.Program temp:programs){
+            programArrayList.add(temp);
         }
     }
 
@@ -211,17 +221,23 @@ public class RegisterFormController {
         lblFullAmount.setText(String.valueOf(amount));
     }
 
-    public void newFinishToAdd(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+    public void newFinishToAdd(ActionEvent actionEvent) throws SQLException, ClassNotFoundException, IOException {
 
-        for (ProgramTM temp : tblAdd.getItems()){
-            PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("INSERT INTO `stu course register` VALUES(?,?)");
-            pst.setObject(1,nic);
-            pst.setObject(2,temp.getId());
-            if(pst.executeUpdate()>0){
-
+        for(ProgramTM temp:tblAdd.getItems()){
+            Session session = FactoryConfig.getInstance().getSession();
+            Transaction transaction = session.beginTransaction();
+            String sql = "INSERT INTO student_program VALUES(?,?)";
+            Query query = session.createSQLQuery(sql);
+            query.setParameter(1,temp.getId());
+            query.setParameter(2,nic);
+            if(query.executeUpdate()>0){
+                transaction.commit();
+                session.close();
             }else{
-                new Alert(Alert.AlertType.WARNING,"Try Again").show();
+                new Alert(Alert.AlertType.WARNING,"Try Again ").show();
+                session.close();
                 return;
+
             }
         }
         mainRoot.setDisable(false);

@@ -1,14 +1,16 @@
-package controller;/*
+package controller;
+/*
 author :Himal
 version : 0.0.1
 */
 
+import bo.ProgramBO;
+import bo.impl.ProgramBOImpl;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
-import db.DbConnection;
+import entity.Program;
 import javafx.animation.TranslateTransition;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -20,18 +22,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import model.Program;
 import model.TM.ProgramTM;
-
-
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 public class ProgrammingFormController {
@@ -45,8 +41,10 @@ public class ProgrammingFormController {
     public JFXButton btnAddNewProgram;
     public AnchorPane root;
 
+    ProgramBO  programBO = new ProgramBOImpl();
 
-    public void initialize() throws SQLException, ClassNotFoundException {
+
+    public void initialize() throws IOException {
 
         txtProgramId.setDisable(true);
         txtProgramName.setDisable(true);
@@ -65,26 +63,40 @@ public class ProgrammingFormController {
 
         loadDataFromDatabase();
 
-
     }
 
-    public void dynamicOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+    public void dynamicOnAction(ActionEvent actionEvent) throws IOException {
 
-            Program program = new Program(txtProgramId.getText(), txtProgramName.getText(), cmbDuration.getSelectionModel().getSelectedItem().toString(), Double.parseDouble(txtFee.getText()));
-            PreparedStatement pst=null;
+        Program program = new Program(txtProgramId.getText(), txtProgramName.getText(), cmbDuration.getSelectionModel().getSelectedItem().toString(), Double.parseDouble(txtFee.getText()));
 
             if(btnDynamic.getText().equalsIgnoreCase("Add")){
-                if(checkProgramId(txtProgramId.getText())){
-                pst = DbConnection.getInstance().getConnection().prepareStatement("INSERT INTO `course` VALUES (?,?,?,?)");
-                execute(pst,"Program Added Success",program.getId(),program.getName(),program.getDuration(),program.getFee());
-                return;
+                if(programBO.checkProgramId(txtProgramId.getText())){
+                    if(programBO.saveProgram(program)){
+                     loadDataFromDatabase();
+                     new Alert(Alert.AlertType.CONFIRMATION,"Program Added Success").show();
+                     clearField();
+                     return;
+                    }else{
+                        new Alert(Alert.AlertType.WARNING,"Try Again").show();
+                        return;
+                    }
+                }else{
+                    txtProgramId.requestFocus();
+                    txtProgramId.clear();
                 }
-            }
+        }
 
             else if(btnDynamic.getText().equalsIgnoreCase("Update")){
-                 pst = DbConnection.getInstance().getConnection().prepareStatement("UPDATE `course` SET c_id=?,c_name=?,duration=?,fee=? WHERE c_id=?");
-                 execute(pst,"Program Update Success",program.getId(),program.getName(),program.getDuration(),program.getFee(),program.getId());
-                 return;
+
+                if(programBO.updateProgram(program)){
+                   loadDataFromDatabase();
+                    new Alert(Alert.AlertType.CONFIRMATION,"Program Update Success").show();
+                    clearField();
+                    return;
+                }else{
+                    new Alert(Alert.AlertType.WARNING,"Try Again").show();
+                    return;
+                }
             }
             else if(btnDynamic.getText().equalsIgnoreCase("Delete")){
 
@@ -96,9 +108,14 @@ public class ProgrammingFormController {
                 Optional<ButtonType> result = alert.showAndWait();
 
                 if(result.orElse(no)==yes){
-                    pst = DbConnection.getInstance().getConnection().prepareStatement("DELETE FROM `course` WHERE c_id=?");
-                    execute(pst,"Delete Success",program.getId());
-                    return;
+                    if(programBO.deleteProgram(program)){
+                        loadDataFromDatabase();
+                        new Alert(Alert.AlertType.CONFIRMATION,"Program Delete Success").show();
+                        return;
+                    }else{
+                        new Alert(Alert.AlertType.WARNING,"Try Again").show();
+                        return;
+                    }
                 }
                 clearField();
                 return;
@@ -106,7 +123,7 @@ public class ProgrammingFormController {
 
     }
 
-    public void addNewProgramOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+    public void addNewProgramOnAction(ActionEvent actionEvent){
 
         lblHeader.setText("New Program");
 
@@ -138,27 +155,27 @@ public class ProgrammingFormController {
         btnDynamic.setDisable(true);
     }
 
-    private  void loadDataFromDatabase() throws SQLException, ClassNotFoundException {
+    private  void loadDataFromDatabase() throws IOException {
+
         tblProgram.getItems().clear();
-        PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT * FROM `course`");
-        ResultSet rst = pst.executeQuery();
-        while (rst.next()){
-            Button update =  new Button("Update");
-            Button delete = new Button("Delete");
-            HBox hBox = new HBox(update,delete);
-            ProgramTM programTM = new ProgramTM(rst.getString(1),rst.getString(2),rst.getString(3),rst.getDouble(4),hBox);
-            tblProgram.getItems().add(programTM);
 
-            update.setOnAction(event -> {
-                setData(programTM,"Update","Update Program");
-            });
+      List<Program> programs =  programBO.allProgram();
 
-            delete.setOnAction(event -> {
-               setData(programTM,"Delete","Delete Program");
-            });
-        }
+      for (Program program : programs){
+          Button update =  new Button("Update");
+          Button delete = new Button("Delete");
+          HBox hBox = new HBox(update,delete);
+          ProgramTM programTM = new ProgramTM(program.getId(),program.getName(),program.getDuration(),program.getFee(),hBox);
+          tblProgram.getItems().add(programTM);
 
-        return;
+          update.setOnAction(event -> {
+              setData(programTM,"Update","Update Program");
+          });
+
+          delete.setOnAction(event -> {
+              setData(programTM,"Delete","Delete Program");
+          });
+      }
     }
 
     private void setData(ProgramTM programTM,String text,String header){
@@ -182,34 +199,8 @@ public class ProgrammingFormController {
 
     }
 
-    private boolean checkProgramId(String id) throws SQLException, ClassNotFoundException {
-        PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT c_id FROM `course`");
-        ResultSet rst = pst.executeQuery();
 
-        while (rst.next()){
-            if(rst.getString(1).equalsIgnoreCase(id)){
-                txtProgramId.requestFocus();
-                new Alert(Alert.AlertType.ERROR,"Sorry,This Program Id Already Exists.").show();
-                return false;
-            }
-        }
-        return true;
-    }
-    private void execute(PreparedStatement pst,String msg,Object... args) throws SQLException, ClassNotFoundException {
 
-       for (int i=0;i<args.length;i++){
-           pst.setObject(i+1,args[i]);
-       }
-         if (pst.executeUpdate() > 0) {
-            new Alert(Alert.AlertType.CONFIRMATION, msg).show();
-            clearField();
-            loadDataFromDatabase();
-            return ;
-        } else {
-            new Alert(Alert.AlertType.ERROR, "Try Again").show();
-            return ;
-        }
-    }
 
     public void navigateOnHome(MouseEvent mouseEvent) throws IOException {
 
@@ -217,7 +208,7 @@ public class ProgrammingFormController {
         Scene mainScene = new Scene(root);
         Stage mainStage =  (Stage)this.root.getScene().getWindow();
         mainStage.setScene(mainScene);
-
+        mainStage.centerOnScreen();
         TranslateTransition tt =  new TranslateTransition(Duration.millis(300),mainScene.getRoot());
         tt.setFromY(mainScene.getWidth()-50);
         tt.setToY(0);

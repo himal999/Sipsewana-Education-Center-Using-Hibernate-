@@ -3,47 +3,39 @@ author :Himal
 version : 0.0.1
 */
 
+import bo.StudentBO;
+import bo.impl.StudentBOImpl;
 import com.jfoenix.controls.*;
 
-import db.DbConnection;
+import entity.Student;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
-
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.effect.DropShadow;
-
 import javafx.scene.image.ImageView;
-
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import model.StuRegister;
-import model.Student;
 import model.TM.ProgramTM;
 import model.TM.StudentTM;
 
 
 import java.io.IOException;
 import java.sql.*;
-
 import java.text.DateFormat;
-
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-
-
 import java.util.ArrayList;
 import java.util.Calendar;
-
+import java.util.List;
 import java.util.Optional;
 
 
@@ -58,28 +50,21 @@ public class StudentFormController {
     public JFXButton btnAddNewStudent;
     public JFXTextField txtCity;
     public JFXDatePicker dpDob;
-
     public JFXTextField txtEmail;
-
-
-
-
     public JFXCheckBox chEnable;
     public JFXButton btnStuCourseReg;
-
-
-    private Connection con;
 
     public static  ArrayList<ProgramTM> programTMS;
     public  static  double amount;
 
+    StudentBO studentBO= new StudentBOImpl();
 
-    public void initialize() throws SQLException, ClassNotFoundException {
+
+    public void initialize() throws SQLException, ClassNotFoundException, IOException {
         txtNIc.setDisable(true);
         txtName.setDisable(true);
         txtCity.setDisable(true);
         dpDob.setDisable(true);
-
         txtTel.setDisable(true);
         btnDynamic.setDisable(true);
         txtEmail.setDisable(true);
@@ -108,6 +93,7 @@ public class StudentFormController {
         Parent root = FXMLLoader.load(this.getClass().getResource("../view/dashboardForm.fxml"));
         Scene mainScene = new Scene(root);
         Stage mainStage = (Stage)this.root.getScene().getWindow();
+        mainStage.centerOnScreen();
         mainStage.setScene(mainScene);
 
         TranslateTransition tt = new TranslateTransition(Duration.millis(300),mainScene.getRoot());
@@ -137,33 +123,55 @@ public class StudentFormController {
         lblHeader.setText("Add New Student");
 
         txtNIc.setDisable(false);
+        txtNIc.clear();
         txtNIc.setEditable(true);
         txtName.setDisable(false);
+        txtName.clear();
         txtEmail.setDisable(false);
+        txtEmail.clear();
         txtCity.setDisable(false);
+        txtCity.clear();
         dpDob.setDisable(false);
 
+
         txtTel.setDisable(false);
+        txtTel.clear();
         btnDynamic.setDisable(false);
         btnDynamic.setText("Add");
 
         chEnable.setDisable(false);
     }
 
-    public void dynamicOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+    public void dynamicOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException, IOException {
 
         Student student =  new Student(txtNIc.getText(),txtName.getText(),txtCity.getText(), Date.valueOf(dpDob.getValue()),txtTel.getText(),txtEmail.getText(),"Pending");
 
         if(btnDynamic.getText().equalsIgnoreCase("Add")){
-
-            con = DbConnection.getInstance().getConnection();
-            PreparedStatement pst = con.prepareStatement("INSERT INTO `student` VALUES (?,?,?,?,?,?,?)");
-            execute(pst,"Student Added Success",student.getNic(),student.getName(),student.getAddress(),student.getDob(),student.getTel(),student.getEmail(),student.getStatus());
+            if(studentBO.checkNewStudent(student.getNic())){
+                if(studentBO.saveStudent(student)){
+                    new Alert(Alert.AlertType.CONFIRMATION,"Student Added Success").show();
+                    clearField();
+                    loadDataFromDB();
+                    return;
+                }else{
+                    new Alert(Alert.AlertType.WARNING,"Try Again").show();
+                    return;
+                }
+            }
+            return;
         }
         else if(btnDynamic.getText().equalsIgnoreCase("Update")){
-            con = DbConnection.getInstance().getConnection();
-            PreparedStatement pst = con.prepareStatement("UPDATE `student` SET nic=?,`name`=?,address=?,dob=?,tel=?,email=? WHERE nic=?");
-            execute(pst,"Student Update Success",student.getNic(),student.getName(),student.getAddress(),student.getDob(),student.getTel(),student.getEmail(),student.getNic());
+
+            if(studentBO.updateStudent(student)){
+                new Alert(Alert.AlertType.CONFIRMATION,"Student Update Success").show();
+                clearField();
+                loadDataFromDB();
+                return;
+            }else{
+                new Alert(Alert.AlertType.WARNING,"Try Again").show();
+                return;
+            }
+
         }
         else if(btnDynamic.getText().equalsIgnoreCase("Delete")){
             ButtonType yes = new ButtonType("Ok",ButtonBar.ButtonData.OK_DONE);
@@ -174,10 +182,15 @@ public class StudentFormController {
             Optional<ButtonType> result = alert.showAndWait();
 
             if(result.orElse(no)==yes){
-              con = DbConnection.getInstance().getConnection();
-              PreparedStatement pst = con.prepareStatement("DELETE FROM `student` WHERE nic=?");
-              execute(pst,"Student Delete Success",student.getNic());
-              return;
+                if(studentBO.deleteStudent(student)){
+                  new Alert(Alert.AlertType.CONFIRMATION,"Student Delete Success").show();
+                  loadDataFromDB();
+                  clearField();
+                  return;
+              }else{
+                  new Alert(Alert.AlertType.WARNING,"Try Again").show();
+                  return;
+              }
             }
             clearField();
         }
@@ -200,27 +213,25 @@ public class StudentFormController {
         txtEmail.clear();
         txtEmail.setDisable(true);
         btnDynamic.setDisable(true);
+
+       chEnable.setSelected(false);
+       btnStuCourseReg.setDisable(true);
+       chEnable.setDisable(true);
     }
 
-    private void loadDataFromDB() throws SQLException, ClassNotFoundException {
-
-
+    private void loadDataFromDB() throws SQLException, ClassNotFoundException, IOException {
 
         tblStudent.getItems().clear();
-        con = DbConnection.getInstance().getConnection();
-        PreparedStatement pst = con.prepareStatement("SELECT * FROM `student`");
-        ResultSet rst = pst.executeQuery();
-        while (rst.next()) {
+        List<entity.Student> studentList =  studentBO.allStudent();
+        for(entity.Student  temp : studentList ){
             Button update = new Button("Update");
             Button delete = new Button("Delete");
             HBox action = new HBox(update,delete);
-            StudentTM student = new StudentTM(rst.getString(1), rst.getString(2), rst.getString(3),rst.getDate(4), rst.getString(5), rst.getString(6),rst.getString(7),action);
+            StudentTM student = new StudentTM(temp.getNic(),temp.getName(),temp.getAddress(),temp.getDob(),temp.getTel(),temp.getEmail(),temp.getStatus(),action);
             tblStudent.getItems().add(student);
-
             update.setOnAction(event -> {
                 loadTextFieldData(student,"Update Student","Update");
             });
-
             delete.setOnAction(event -> {
                 loadTextFieldData(student,"Delete Student","Delete");
                 return;
@@ -239,8 +250,8 @@ public class StudentFormController {
 
         lblHeader.setText(header);
 
-        btnDynamic.setDisable(false);
-        btnDynamic.setText(button);
+
+
 
         txtNIc.setText(student.getNic());
         txtName.setText(student.getName());
@@ -254,110 +265,84 @@ public class StudentFormController {
 
         txtTel.setText(student.getTel());
         txtEmail.setText(student.getEmail());
-
-        chEnable.setDisable(true);
-
-
-    }
+        chEnable.setSelected(false);
 
 
+        if(student.getStatus().equalsIgnoreCase("Pending")){
+            chEnable.setDisable(false);
+            btnDynamic.setDisable(true);
+            btnStuCourseReg.setDisable(false);
 
-
-    private void execute(PreparedStatement pst,String msg,Object... args) throws SQLException, ClassNotFoundException {
-
-
-        for(int i=0;i<args.length;i++){
-            pst.setObject(i+1,args[i]);
-        }
-
-       if(pst.executeUpdate()>0){
-
-           new Alert(Alert.AlertType.CONFIRMATION,msg).show();
-           clearField();
-           loadDataFromDB();
-           return ;
+            txtNIc.setEditable(false);
+            txtName.setEditable(false);
+            txtCity.setEditable(false);
+            txtTel.setEditable(false);
+            txtEmail.setEditable(false);
+            dpDob.setEditable(false);
+            btnStuCourseReg.setDisable(true);
         }else{
-           new Alert(Alert.AlertType.WARNING,"Try Again").show();
-           clearField();
-           return;
+            chEnable.setDisable(true);
+            btnStuCourseReg.setDisable(true);
+            btnDynamic.setDisable(false);
+            btnDynamic.setText(button);
+
+            txtNIc.setEditable(false);
+            txtName.setEditable(true);
+            txtCity.setEditable(true);
+            txtTel.setEditable(true);
+            txtEmail.setEditable(true);
+            dpDob.setEditable(true);
         }
 
     }
 
-
-
-
-
-
-
-
-
-
-    public void stuCourseRegOnAction(ActionEvent actionEvent) throws SQLException {
-
-        Student student = new Student(txtNIc.getText(),txtName.getText(),txtCity.getText(),Date.valueOf(dpDob.getValue()),txtTel.getText(),txtEmail.getText(),"Success");
-
+    public void stuCourseRegOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException, IOException {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd ");
         Calendar cal = Calendar.getInstance();
-        String date  = dateFormat.format(cal.getTime());
+        String date = dateFormat.format(cal.getTime());
+        entity.Student student = new entity.Student(txtNIc.getText(), txtName.getText(), txtCity.getText(), Date.valueOf(dpDob.getValue()), txtTel.getText(), txtEmail.getText(), "Success");
+        StuRegister register = new StuRegister(student.getNic(), programTMS, date, amount);
 
-        StuRegister register = new StuRegister(student.getNic(),programTMS,date,amount);
-        try {
-            con.setAutoCommit(false);
-            PreparedStatement pst = null;
-            pst = con.prepareStatement("INSERT INTO `student` VALUES (?,?,?,?,?,?,?)");
-            pst.setObject(1,student.getNic());
-            pst.setObject(2,student.getName());
-            pst.setObject(3,student.getAddress());
-            pst.setObject(4,student.getDob());
-            pst.setObject(5,student.getTel());
-            pst.setObject(6,student.getEmail());
-            pst.setObject(7,student.getStatus());
-
-            if(pst.executeUpdate()>0){
-
-                boolean bool=false;
-                for(ProgramTM temp:register.getPrograms()){
-                    pst = con.prepareStatement("INSERT INTO `stu course register` VALUES (?,?)");
-                    pst.setObject(1,register.getNic());
-                    pst.setObject(2,temp.getId());
-                    if(pst.executeUpdate()>0){
-                        bool=true;
+        if(tblStudent.getSelectionModel().isEmpty()){
+            if (studentBO.checkNewStudent(student.getNic())) {
+                if (studentBO.insertStudentData(student)) {
+                    if(studentBO.insertStuRegisterData(register)){
+                    new Alert(Alert.AlertType.CONFIRMATION,"Course & Student Register Success").show();
+                    clearField();
+                    loadDataFromDB();
+                    return;
                     }else{
-                        bool=false;
-                        con.rollback();
-                        con.setAutoCommit(true);
-                    }
-
+                    new Alert(Alert.AlertType.WARNING,"Try Again").show();
+                    return;
                 }
-                if(bool) {
-                    pst = con.prepareStatement("INSERT INTO `stu course register detail` VALUES (?,?,?)");
-                    pst.setObject(1,register.getNic());
-                    pst.setObject(2,date);
-                    pst.setObject(3,amount);
-
-                    if(pst.executeLargeUpdate()>0){
-                        con.commit();
-                        con.setAutoCommit(true);
-                    }else{
-                        con.rollback();
-                        con.setAutoCommit(true);
-                    }
-                }
-
-
-            }else{
-                con.rollback();
-                con.setAutoCommit(true);
             }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
         }
+        }else if(tblStudent.getSelectionModel().getSelectedItem().getStatus().equalsIgnoreCase("Pending")){
 
-        finally {
-            con.setAutoCommit(true);
+            if(studentBO.updateStatus(student)){
+                if(studentBO.insertStuRegisterData(register)){
+                    new Alert(Alert.AlertType.CONFIRMATION,"Course Register Success").show();
+                    clearField();
+                    tblStudent.getSelectionModel().clearSelection();
+                    loadDataFromDB();
+                    return;
+                }else{
+                    tblStudent.getSelectionModel().clearSelection();
+                    new Alert(Alert.AlertType.WARNING,"Try Again").show();
+                    return;
+                }
+            }else {
+                tblStudent.getSelectionModel().clearSelection();
+                new Alert(Alert.AlertType.WARNING,"Try Again").show();
+                clearField();
+                return;
+            }
+
         }
     }
+
+
+
 
     public void enableRegisterField(MouseEvent mouseEvent) throws IOException, SQLException, ClassNotFoundException {
            if(chEnable.isSelected()){
@@ -383,4 +368,7 @@ public class StudentFormController {
                btnDynamic.setDisable(false);
            }
     }
+
+
+
 }

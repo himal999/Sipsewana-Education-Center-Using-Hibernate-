@@ -14,42 +14,42 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="root" prefHeight="765.0" prefWidth="1328.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.StudentFormController">
+<AnchorPane fx:id="root" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.StudentFormController">
     <children>
-        <TableView fx:id="tblStudent" layoutX="33.0" layoutY="469.0" prefHeight="277.0" prefWidth="1276.0">
+        <TableView fx:id="tblStudent" layoutX="51.0" layoutY="626.0" prefHeight="321.0" prefWidth="1779.0">
             <columns>
-                <TableColumn prefWidth="137.0" text="NIC" />
-                <TableColumn prefWidth="222.0" text="Name" />
-                <TableColumn prefWidth="142.0" text="City" />
-                <TableColumn prefWidth="163.0" text="Date Of Birth" />
-                <TableColumn prefWidth="160.0" text="Tel.No" />
-            <TableColumn prefWidth="132.0" text="Email" />
-            <TableColumn prefWidth="132.0" text="Status" />
-            <TableColumn prefWidth="184.0" text="Action" />
+                <TableColumn prefWidth="148.99996948242188" text="NIC" />
+                <TableColumn prefWidth="285.0000305175781" text="Name" />
+                <TableColumn prefWidth="176.0" text="City" />
+                <TableColumn prefWidth="208.0" text="Date Of Birth" />
+                <TableColumn prefWidth="251.0" text="Tel.No" />
+            <TableColumn prefWidth="327.0" text="Email" />
+            <TableColumn prefWidth="194.0" text="Status" />
+            <TableColumn prefWidth="225.0" text="Action" />
             </columns>
         </TableView>
-        <JFXTextField fx:id="txtNIc" labelFloat="true" layoutX="35.0" layoutY="165.0" promptText="NIC" />
-        <JFXTextField fx:id="txtName" labelFloat="true" layoutX="265.0" layoutY="165.0" prefHeight="26.0" prefWidth="317.0" promptText="Student Name" />
-        <JFXTextField fx:id="txtTel" labelFloat="true" layoutX="265.0" layoutY="232.0" prefHeight="26.0" prefWidth="317.0" promptText="Student Tel" />
-        <JFXButton fx:id="btnDynamic" buttonType="RAISED" layoutX="840.0" layoutY="274.0" onAction="#dynamicOnAction" style="-fx-background-color: #ff3f34;" text="Update" textFill="WHITE">
+        <JFXTextField fx:id="txtNIc" labelFloat="true" layoutX="48.0" layoutY="246.0" prefHeight="26.0" prefWidth="234.0" promptText="NIC" />
+        <JFXTextField fx:id="txtName" labelFloat="true" layoutX="335.0" layoutY="246.0" prefHeight="26.0" prefWidth="398.0" promptText="Student Name" />
+        <JFXTextField fx:id="txtTel" labelFloat="true" layoutX="1462.0" layoutY="246.0" prefHeight="26.0" prefWidth="286.0" promptText="Student Tel" />
+        <JFXButton fx:id="btnDynamic" buttonType="RAISED" layoutX="335.0" layoutY="342.0" onAction="#dynamicOnAction" style="-fx-background-color: #ff3f34;" text="Update" textFill="WHITE">
             <font>
                 <Font name="FreeSans" size="15.0" />
             </font>
         </JFXButton>
-        <AnchorPane layoutX="-2.0" layoutY="-2.0" prefHeight="81.0" prefWidth="1328.0" style="-fx-background-color: #d2dae2;">
+        <AnchorPane layoutX="-2.0" layoutY="-2.0" prefHeight="128.0" prefWidth="1920.0" style="-fx-background-color: #d2dae2;">
             <children>
-                <Label fx:id="lblHeader" layoutX="529.0" layoutY="23.0" text="Student Panel" textFill="#f53232">
+                <Label fx:id="lblHeader" layoutX="780.0" layoutY="36.0" text="Student Panel" textFill="#f53232">
                     <font>
-                        <Font name="DejaVu Serif Bold" size="28.0" />
+                        <Font name="DejaVu Serif Bold" size="36.0" />
                     </font>
                 </Label>
-                <JFXButton fx:id="btnAddNewStudent" buttonType="RAISED" layoutX="1124.0" layoutY="26.0" onAction="#addNewStudentOnAction" style="-fx-background-color: #0097e6;" text="+ Add New Student" textFill="WHITE">
+                <JFXButton fx:id="btnAddNewStudent" buttonType="RAISED" layoutX="1616.0" layoutY="45.0" onAction="#addNewStudentOnAction" style="-fx-background-color: #0097e6;" text="+ Add New Student" textFill="WHITE">
                     <font>
                         <Font name="FreeSans" size="15.0" />
                     </font>
                 </JFXButton>
-                <Separator layoutX="-1.0" layoutY="52.0" prefHeight="27.0" prefWidth="1328.0" />
-                <ImageView fitHeight="43.0" fitWidth="47.0" layoutX="14.0" layoutY="18.0" onMouseClicked="#navigateOnHome" onMouseEntered="#mouseEnter" onMouseExited="#mouseExit" opacity="0.99" pickOnBounds="true" preserveRatio="true">
+                <Separator layoutY="87.0" prefHeight="27.0" prefWidth="1920.0" />
+                <ImageView fitHeight="43.0" fitWidth="47.0" layoutX="50.0" layoutY="37.0" onMouseClicked="#navigateOnHome" onMouseEntered="#mouseEnter" onMouseExited="#mouseExit" opacity="0.99" pickOnBounds="true" preserveRatio="true">
                     <image>
                         <Image url="@../assets/home.png" />
                     </image>
@@ -59,26 +59,26 @@
                 </ImageView>
             </children>
         </AnchorPane>
-      <JFXTextField fx:id="txtCity" labelFloat="true" layoutX="631.0" layoutY="165.0" prefHeight="26.0" prefWidth="277.0" promptText="Student City" />
-      <JFXTextField fx:id="txtEmail" labelFloat="true" layoutX="631.0" layoutY="232.0" prefHeight="26.0" prefWidth="277.0" promptText="Student Email" />
-      <Label layoutX="28.0" layoutY="100.0" text="Student Details">
+      <JFXTextField fx:id="txtCity" labelFloat="true" layoutX="770.0" layoutY="246.0" prefHeight="26.0" prefWidth="369.0" promptText="Student City" />
+      <JFXTextField fx:id="txtEmail" labelFloat="true" layoutX="47.0" layoutY="342.0" prefHeight="26.0" prefWidth="246.0" promptText="Student Email" />
+      <Label layoutX="47.0" layoutY="172.0" text="Student Details">
          <font>
             <Font name="System Bold" size="22.0" />
          </font>
       </Label>
-      <Label layoutX="28.0" layoutY="301.0" text="Registation">
+      <Label layoutX="47.0" layoutY="439.0" text="Registation">
          <font>
             <Font name="System Bold" size="22.0" />
          </font>
       </Label>
-      <Separator layoutX="238.0" layoutY="112.0" prefHeight="3.0" prefWidth="1027.0" style="-fx-background-color: BLACK;" />
-      <JFXCheckBox fx:id="chEnable" layoutX="28.0" layoutY="383.0" onMouseClicked="#enableRegisterField" text="Are you Just Register Program ?" />
-      <Separator layoutX="222.0" layoutY="313.0" prefHeight="3.0" prefWidth="1027.0" style="-fx-background-color: BLACK;" />
-      <JFXButton fx:id="btnStuCourseReg" buttonType="RAISED" layoutX="840.0" layoutY="408.0" onAction="#stuCourseRegOnAction" style="-fx-background-color: #f0932b;" text="Submit" textFill="WHITE">
+      <Separator layoutX="259.0" layoutY="183.0" prefHeight="3.0" prefWidth="1587.0" style="-fx-background-color: BLACK;" />
+      <JFXCheckBox fx:id="chEnable" layoutX="54.0" layoutY="547.0" onMouseClicked="#enableRegisterField" text="Are you Just Register Program ?" />
+      <Separator layoutX="209.0" layoutY="451.0" prefHeight="3.0" prefWidth="1635.0" style="-fx-background-color: BLACK;" />
+      <JFXButton fx:id="btnStuCourseReg" buttonType="RAISED" layoutX="336.0" layoutY="543.0" onAction="#stuCourseRegOnAction" style="-fx-background-color: #f0932b;" text="Submit" textFill="WHITE">
          <font>
             <Font name="FreeSans" size="15.0" />
          </font>
       </JFXButton>
-      <JFXDatePicker fx:id="dpDob" defaultColor="#0937ee" layoutX="41.0" layoutY="232.0" prefHeight="26.0" prefWidth="168.0" promptText="Student DOB" />
+      <JFXDatePicker fx:id="dpDob" defaultColor="#0937ee" layoutX="1197.0" layoutY="246.0" prefHeight="26.0" prefWidth="228.0" promptText="Student DOB" />
     </children>
 </AnchorPane>

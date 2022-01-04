@@ -4,9 +4,12 @@ version : 0.0.1
 */
 
 import com.jfoenix.controls.JFXComboBox;
-import db.DbConnection;
+import dao.impl.ProgrammingDAOImpl;
+
+import dao.impl.ViewDetailDAOImpl;
+import db.FactoryConfig;
+import entity.Program;
 import javafx.animation.TranslateTransition;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -22,12 +25,16 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import model.TM.DetailTM;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.NativeQuery;
+
 
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class ViewDetailFormController {
@@ -43,7 +50,7 @@ public class ViewDetailFormController {
 
 
 
-    public void initialize() throws SQLException, ClassNotFoundException {
+    public void initialize() throws IOException {
         lblClickHere.setDisable(true);
         lblNoOfCourse.setVisible(false);
 
@@ -56,9 +63,7 @@ public class ViewDetailFormController {
                 selected = newValue.toString();
                 loadTable(selected);
 
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         });
@@ -94,6 +99,7 @@ public class ViewDetailFormController {
         Parent root  = FXMLLoader.load(getClass().getResource("../view/dashboardForm.fxml"));
         Scene scene = new Scene(root);
         Stage stage  = (Stage)this.root.getScene().getWindow();
+        stage.centerOnScreen();
         stage.setScene(scene);
         stage.show();
 
@@ -118,82 +124,74 @@ public class ViewDetailFormController {
         imgIcon.setEffect(null);
     }
 
-    private void loadData() throws SQLException, ClassNotFoundException {
-       ArrayList<String> nic = new ArrayList<>();
-        PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT nic FROM `stu course register`");
-        ResultSet rst = pst.executeQuery();
-       L1:while (rst.next()){
-            for (String te:nic){
-                if(te.equalsIgnoreCase(rst.getString(1))){
-                    continue  L1;
-                }
-            }
-            nic.add(rst.getString(1));
-            cmbNic.getItems().add(rst.getString(1));
-        }
+    private void loadData() throws  IOException {
+      ArrayList<String> nic = new ArrayList<>();
+
+      String sql = "SELECT students_nic FROM `student_program`";
+      Session session = FactoryConfig.getInstance().getSession();
+      Transaction transaction = session.beginTransaction();
+      NativeQuery sqlQuery = session.createSQLQuery(sql);
+      List<String> list = sqlQuery.list();
+      L1: for(String temp:list){
+          for(String te:nic){
+              if(te.equalsIgnoreCase(temp)){
+                  continue L1;
+              }
+          }
+          nic.add(temp);
+          cmbNic.getItems().add(temp);
+      }
 
         ArrayList<String> name = new ArrayList<>();
         for(String temp:nic){
-            pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT `name` FROM `student` WHERE nic=?");
-            pst.setObject(1,temp);
-            rst = pst.executeQuery();
+            sql = "SELECT `name` FROM `student` WHERE nic=?";
 
-            rst.next();
-            name.add(rst.getString("name"));
+            List<String> nList = session.createSQLQuery(sql).setParameter(1,temp).list();
 
+            for(String te:nList){
+                name.add(te);
+            }
         }
+        transaction.commit();
+        session.close();
     }
 
-    public void loadTable(String id) throws SQLException, ClassNotFoundException {
-
+    public void loadTable(String id) throws IOException {
 
         ArrayList<String> cId = new ArrayList<>();
         tblDetail.getItems().clear();
 
+         ViewDetailDAOImpl viewDetailDAO = new ViewDetailDAOImpl();
+         ArrayList<String> registerList;
+          viewDetailDAO.getViewData(id);
 
-        PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("SELECT * FROM `stu course register` WHERE nic=?");
-        pst.setObject(1,id);
-
-        ResultSet rst = pst.executeQuery();
-
-        while (rst.next()){
-
-            cId.add(rst.getString("c_id"));
-
-        }
-
-
-        for(String temp : cId){
-
-            pst =DbConnection.getInstance().getConnection().prepareStatement("SELECT c_id,c_name,duration FROM `course`  WHERE c_id=? ");
-            pst.setObject(1,temp);
-
-            rst = pst.executeQuery();
-
-            Button drop = new Button("Drop");
-            HBox action = new HBox(drop);
-
-            rst.next();
-            tblDetail.getItems().add(new DetailTM(rst.getString("c_id"),rst.getString("c_name"),rst.getString("duration"),action));
-
-            drop.setOnAction(event -> {
-
-                try {
-
-                    dropCourse(tblDetail.getSelectionModel().getSelectedItem().getId());
-
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            });
-
-        }
-        lblNoOfCourse.setVisible(true);
-        lblNoOfCourse.setText(String.valueOf(tblDetail.getItems().size()));
+        /* for(String temp:registerList){
+             System.out.println("1");
+             cId.add(temp);
+         }*/
+        ProgrammingDAOImpl programmingDAO = new ProgrammingDAOImpl();
+         for (String te:cId){
+            Program program = programmingDAO.getProgram(te);
+             Button drop = new Button("Drop");
+             HBox action = new HBox(drop);
+             tblDetail.getItems().add(new DetailTM(program.getId(),program.getName(),program.getDuration(),action));
+             drop.setOnAction(event -> {
+                 try {
+                     dropCourse(tblDetail.getSelectionModel().getSelectedItem().getId());
+                     lblNoOfCourse.setVisible(true);
+                     lblNoOfCourse.setText(String.valueOf(tblDetail.getItems().size()));
+                 } catch (SQLException throwables) {
+                     throwables.printStackTrace();
+                 } catch (ClassNotFoundException e) {
+                     e.printStackTrace();
+                 } catch (IOException e) {
+                     e.printStackTrace();
+                 }
+             });
+         }
     }
-    private void dropCourse(String select) throws SQLException, ClassNotFoundException {
+
+    private void dropCourse(String select) throws SQLException, ClassNotFoundException, IOException {
         ButtonType yes = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
         ButtonType no = new ButtonType("Cancel",ButtonBar.ButtonData.CANCEL_CLOSE);
 
@@ -202,12 +200,11 @@ public class ViewDetailFormController {
 
         if(result.orElse(no)==yes){
 
-              PreparedStatement pst = DbConnection.getInstance().getConnection().prepareStatement("DELETE FROM `stu course register` WHERE c_id = ?");
-              pst.setObject(1,select);
+            ViewDetailDAOImpl viewDetailDAO = new ViewDetailDAOImpl();
 
-              if(pst.executeUpdate()>0){
+            if(viewDetailDAO.deleteRegisterDetail(select)){
                   new Alert(Alert.AlertType.CONFIRMATION,"Delete Success").show();
-                 loadTable(selected);
+                  loadTable(selected);
                   return;
               }else{
                   new Alert(Alert.AlertType.WARNING,"Try Again").show();

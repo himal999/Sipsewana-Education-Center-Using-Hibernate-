@@ -11,26 +11,26 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="root" prefHeight="653.0" prefWidth="875.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ViewDetailFormController">
+<AnchorPane fx:id="root" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ViewDetailFormController">
     <children>
-        <TableView fx:id="tblDetail" layoutX="28.0" layoutY="283.0" prefHeight="263.0" prefWidth="820.0">
+        <TableView fx:id="tblDetail" layoutX="62.0" layoutY="402.0" prefHeight="409.0" prefWidth="1764.0">
             <columns>
-                <TableColumn prefWidth="137.0" text="Program ID" />
-                <TableColumn prefWidth="344.0" text="Program Name" />
-                <TableColumn prefWidth="194.0" text="Duration" />
-                <TableColumn prefWidth="144.0" text="Action" />
+                <TableColumn prefWidth="308.0" text="Program ID" />
+                <TableColumn prefWidth="922.0" text="Program Name" />
+                <TableColumn prefWidth="320.0" text="Duration" />
+                <TableColumn prefWidth="213.0" text="Action" />
             </columns>
         </TableView>
-        <JFXComboBox fx:id="cmbNic" labelFloat="true" layoutX="235.0" layoutY="117.0" prefHeight="26.0" prefWidth="128.0" promptText="NIC" />
-        <AnchorPane layoutX="1.0" layoutY="-2.0" prefHeight="79.0" prefWidth="871.0" style="-fx-background-color: #d2dae2;">
+        <JFXComboBox fx:id="cmbNic" labelFloat="true" layoutX="290.0" layoutY="172.0" prefHeight="26.0" prefWidth="286.0" promptText="Serch Here" />
+        <AnchorPane layoutX="1.0" layoutY="-2.0" prefHeight="128.0" prefWidth="1920.0" style="-fx-background-color: #d2dae2;">
             <children>
-                <Label fx:id="lblHeader" layoutX="304.0" layoutY="21.0" text="Information Panel" textFill="#f53232">
+                <Label fx:id="lblHeader" layoutX="715.0" layoutY="34.0" text="Information Panel" textFill="#f53232">
                     <font>
-                        <Font name="DejaVu Serif Bold" size="28.0" />
+                        <Font name="DejaVu Serif Bold" size="35.0" />
                     </font>
                 </Label>
-                <Separator layoutX="-1.0" layoutY="52.0" prefHeight="27.0" prefWidth="875.0" />
-                <ImageView fx:id="imgIcon" fitHeight="43.0" fitWidth="47.0" layoutX="14.0" layoutY="18.0" onMouseClicked="#navigateOnHome" onMouseEntered="#mouseEnter" onMouseExited="#mouseExit" opacity="0.99" pickOnBounds="true" preserveRatio="true">
+                <Separator layoutY="87.0" prefHeight="27.0" prefWidth="1921.0" />
+                <ImageView fx:id="imgIcon" fitHeight="43.0" fitWidth="47.0" layoutX="54.0" layoutY="34.0" onMouseClicked="#navigateOnHome" onMouseEntered="#mouseEnter" onMouseExited="#mouseExit" opacity="0.99" pickOnBounds="true" preserveRatio="true">
                     <image>
                         <Image url="@../assets/home.png" />
                     </image>
@@ -40,22 +40,22 @@
                 </ImageView>
             </children>
         </AnchorPane>
-      <Label layoutX="28.0" layoutY="115.0" text="Search Student ">
+      <Label layoutX="62.0" layoutY="170.0" text="Search Student ">
          <font>
             <Font size="25.0" />
          </font>
       </Label>
-      <Label layoutX="28.0" layoutY="212.0" text="Do you want to register new program ?" />
-      <Label fx:id="lblClickHere" layoutX="291.0" layoutY="212.0" onMouseClicked="#newProgramRegister" text="Click Here" textFill="#1301d3" underline="true">
+      <Label layoutX="74.0" layoutY="287.0" text="Do you want to register new program ?" />
+      <Label fx:id="lblClickHere" layoutX="340.0" layoutY="287.0" onMouseClicked="#newProgramRegister" text="Click Here" textFill="#1301d3" underline="true">
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor></Label>
-      <Label layoutX="42.0" layoutY="597.0" text="No of Registerd Programs">
+      <Label layoutX="775.0" layoutY="887.0" text="No of Registerd Programs">
          <font>
             <Font size="16.0" />
          </font>
       </Label>
-      <Label fx:id="lblNoOfCourse" layoutX="269.0" layoutY="597.0" text="000">
+      <Label fx:id="lblNoOfCourse" layoutX="1007.0" layoutY="887.0" text="000">
          <font>
             <Font size="16.0" />
          </font>

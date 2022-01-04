@@ -5,8 +5,10 @@ version : 0.0.1
 
 import model.TM.ProgramTM;
 
+import javax.persistence.Entity;
 import java.util.ArrayList;
 import java.util.Date;
+
 
 public class StuRegister {
     String nic;

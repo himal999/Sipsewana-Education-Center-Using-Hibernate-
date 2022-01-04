@@ -1,31 +1,50 @@
-package model;/*
+package entity;
+/*
 author :Himal
 version : 0.0.1
 */
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-
+@Entity(name = "student")
 public class Student {
+        @Id
 
-    String nic;
+        String nic;
 
-    String name;
+        String name;
 
-    String address;
+        String address;
 
-    Date dob;
+        Date dob;
 
-    String tel;
+        String tel;
 
-    String email;
+        String email;
 
-    String status;
+        String status;
+        @ManyToMany
+        @Cascade({CascadeType.SAVE_UPDATE,CascadeType.DELETE})
+        List<Program> programs = new ArrayList<>();
 
-    public Student() {
+        public Student() {
+        }
+
+    public Student(String nic, String name, String address, Date dob, String tel, String email, String status, List<Program> programs) {
+        this.nic = nic;
+        this.name = name;
+        this.address = address;
+        this.dob = dob;
+        this.tel = tel;
+        this.email = email;
+        this.status = status;
+        this.programs = programs;
     }
 
     public Student(String nic, String name, String address, Date dob, String tel, String email, String status) {
@@ -38,7 +57,6 @@ public class Student {
         this.status = status;
 
     }
-
 
     public String getNic() {
         return nic;
@@ -94,5 +112,13 @@ public class Student {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<Program> getPrograms() {
+        return programs;
+    }
+
+    public void setPrograms(List<Program> programs) {
+        this.programs = programs;
     }
 }
